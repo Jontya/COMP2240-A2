@@ -33,8 +33,9 @@ public class Farmer implements Runnable{
     public void run() {
         while(bridge.getNEON() < 100){
             
+            System.out.println(farmerID + ": Waiting for bridge. Going towards " + direction);
+
             try{
-                System.out.println(farmerID + ": Waiting for bridge. Going towards " + direction);
                 bridge.getBlock().acquire();
             }
             catch (Exception e) {
@@ -48,7 +49,16 @@ public class Farmer implements Runnable{
 
             while(numSteps != 20){
                 numSteps += 5;
-                System.out.println(farmerID + ": Crossing bridge step " + numSteps + ".");
+                if(numSteps == 20){
+                    bridge.incrementNEON();
+                    changeFarmerDirection();
+                    System.out.println(farmerID + ": Across the bridge.");
+                    System.out.println("NEON = " + bridge.getNEON() + "");
+                    bridge.getBlock().release();
+                }
+                else{
+                    System.out.println(farmerID + ": Crossing bridge step " + numSteps + ".");
+                }
                 try{
                     Thread.sleep(20);
                 }
@@ -56,14 +66,7 @@ public class Farmer implements Runnable{
                     break;
                 }
             }
-    
             numSteps = 0;
-            bridge.incrementNEON();
-            changeFarmerDirection();
-            System.out.println(farmerID + ": Across the bridge.");
-            System.out.println("NEON = " + bridge.getNEON() + "");
-            bridge.getBlock().release();
-            
         }
     }
 }
