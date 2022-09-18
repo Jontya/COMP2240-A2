@@ -31,7 +31,7 @@ public class Farmer implements Runnable{
 
     @Override
     public void run() {
-        while(bridge.getNEON() < 10){
+        while(bridge.getNEON() < 100){
             
             try{
                 System.out.println(farmerID + ": Waiting for bridge. Going towards " + direction);
@@ -41,7 +41,7 @@ public class Farmer implements Runnable{
                 break;
             }
 
-            if(bridge.getNEON() >= 10){
+            if(bridge.getNEON() >= 100){
                 bridge.getBlock().release();
                 return;
             }
