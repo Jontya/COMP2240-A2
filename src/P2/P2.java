@@ -1,6 +1,6 @@
 import java.io.File;
 import java.util.Scanner;
-import java.util.PriorityQueue;
+import java.util.ArrayList;
 
 public class P2 {
     private static String filename;
@@ -17,12 +17,11 @@ public class P2 {
 
     private void run() throws Exception{
         Parlour parlour = new Parlour();
-        PriorityQueue<Customer> customers = readFile(parlour);
-        parlour.setCustomers(customers);
-        parlour.runParlour();
+        ArrayList<Customer> customers = readFile(parlour);
+        parlour.runParlour(customers);
     }
 
-    private PriorityQueue<Customer> readFile(Parlour parlour) throws Exception{
+    private ArrayList<Customer> readFile(Parlour parlour) throws Exception{
 
         File file = new File(filename);
         if(!file.exists()){
@@ -30,7 +29,7 @@ public class P2 {
             System.exit(0);
         }
 
-        PriorityQueue<Customer> customers = new PriorityQueue<>();
+        ArrayList<Customer> customers = new ArrayList<>();
         Scanner scanner = new Scanner(file);
 
         try{
