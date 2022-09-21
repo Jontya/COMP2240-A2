@@ -1,53 +1,40 @@
-import javax.swing.plaf.metal.MetalBorders.PaletteBorder;
-
-public class Customer implements Runnable,Comparable<Customer>{
+public class Customer implements Runnable{
     private int arriveTime;
+    private int eatingTime;
+    private int sitDownTime;
     private Parlour parlour;
     private String customerID;
-    private int customerTime;
 
     public Customer(int _arriveTime, String _customerID, int _customerTime, Parlour _parlour){
         arriveTime = _arriveTime;
         customerID = _customerID;
-        customerTime = _customerTime;
+        eatingTime = _customerTime;
         parlour = _parlour;
+    }
+
+    public void setSitDownTime(int t){
+        sitDownTime = t;
     }
 
     public int getArriveTime(){
         return arriveTime;
     }
 
-    public String getCustomerID(){
-        return customerID;
-    }
-
-    public int getCustomerTime(){
-        return customerTime;
+    public int getEatingTime(){
+        return eatingTime;
     }
 
     @Override
     public void run() {
-        while(!parlour.checkEvent()){
-            try{
-                parlour.getSemaphore().acquire();
-            }
-            catch (Exception e) {
-                return;
-            }
-    
-            if(parlour.getCurrentTime() == customerTime){
-                System.out.println(customerID + " " + arriveTime + " " + parlour.getCurrentTime());
-                parlour.getSemaphore().release();
-                parlour.incOpnSeats();
-            }
+        try{
+            parlour.getSemaphore().acquire();
         }
-    }
-
-    @Override
-    public int compareTo(Customer o) {
-        if(arriveTime > o.getArriveTime()){
-            return 1;
+        catch (Exception e){
+            return;
         }
-        return 0;
+        finally{
+            
+            parlour.getSemaphore().release();
+        }
     }
 }

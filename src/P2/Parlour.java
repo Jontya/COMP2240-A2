@@ -1,75 +1,61 @@
 import java.util.concurrent.*;
+import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 public class Parlour {
+    private PriorityQueue<TimeEvent> eventQueue;
     private static final int MAXSEATS = 5;
-    private PriorityQueue<Customer> customers;
+    private Semaphore timeSemaphore;
     private Semaphore semaphore;
-    private int openSeats;
+    private boolean complete;
     private int currTime;
 
     public Parlour(){
-        openSeats = MAXSEATS;
         currTime = 0;
+        complete = false;
+        timeSemaphore = new Semaphore(1, true);
         semaphore = new Semaphore(MAXSEATS, true);
-        customers = new PriorityQueue<>();
+        eventQueue = new PriorityQueue<>();
     }
 
-    public void setCustomers(PriorityQueue<Customer> _customers){
-        customers = _customers;
+    public int getCurrTime(){
+        return currTime;
     }
 
-    public void decOpenSeats(){
-        openSeats--;
-    }
-
-    public void incOpnSeats(){
-        openSeats++;
-    }
-
-    public synchronized void incCurrTime(){
-        currTime++;
+    public void setCurrTime(int _currTime){
+        currTime = _currTime;
     }
 
     public Semaphore getSemaphore(){
         return semaphore;
     }
 
-    public int getCurrentTime(){
-        return currTime;
+    public Semaphore getTimeSemaphore(){
+        return timeSemaphore;
     }
 
-    public int getOpenSeats(){
-        return openSeats;
+    public void swapCompleteStatus(){
+        complete = !complete;
     }
 
-    public boolean checkEvent(){
-        
-        return false;
-    }
-
-    public void runParlour(){
+    public void runParlour(ArrayList<Customer> customers){
+        Customer tempCustomer;
         int size = customers.size();
-        for(int i = 0; i < size; i++){
-            if(customers.peek().getArriveTime() <= currTime){
-                openSeats--;
-                new Thread(customers.remove()).start();
+        for(int i = 0 ; i < size; i++){
+            tempCustomer = customers.get(i);
+            if(customers.get(i).getArriveTime() == 0){
+                tempCustomer.setSitDownTime(0);
+                eventQueue.add(new TimeEvent(tempCustomer, true, tempCustomer.getEatingTime()));
+                new Thread(customers.get(i)).start();
             }
-        }
-
-        while(customers.size() != 0){
-            if(openSeats == 0){
-                while(openSeats != 5){
-                    // Loops until all seats are free
-                }
-            }
-
-            for(int i = 0; i < openSeats; i++){
-                if(customers.peek().getArriveTime() <= currTime){
-                    openSeats--;
-                    new Thread(customers.remove()).start();
-                }
+            else{
+                //eventQueue.add(new TimeEvent(tempCustomer, false, tempCustomer.getArriveTime()));
             }
         }
     }
+
+    public void nextEvent(){
+        currTime = eventQueue.remove().getTime();
+    }
+
 }
