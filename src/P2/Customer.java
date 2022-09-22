@@ -1,19 +1,25 @@
 public class Customer implements Runnable{
+    private String customerID;
+    private Parlour parlour;
     private int arriveTime;
     private int eatingTime;
     private int seatedTime;
-    private Parlour parlour;
-    private String customerID;
+    private int leaveTime;
+    private boolean waiting;
+    private boolean finished;
 
     public Customer(int _arriveTime, String _customerID, int _customerTime, Parlour _parlour){
         arriveTime = _arriveTime;
         customerID = _customerID;
         eatingTime = _customerTime;
         parlour = _parlour;
+
+        waiting = false;
+        finished = false;
     }
 
-    public void setSeatedTime(int _seatedTime){
-        seatedTime = _seatedTime;
+    public String getCustomerID(){
+        return customerID;
     }
 
     public int getArriveTime(){
@@ -24,50 +30,57 @@ public class Customer implements Runnable{
         return eatingTime;
     }
 
+    public int getLeaveTime(){
+        return leaveTime;
+    }
+
+    public int getSeatedTime(){
+        return seatedTime;
+    }
+
     @Override
     public void run() {
-        try{
-            parlour.getSemaphore().acquire();
+        parlour.acquireMutex();
+        if(arriveTime == 0){
+            if(parlour.sitDown()){
+                seatedTime = 0;
+            }
+            else{
+                waiting = true;
+            }
         }
-        catch (Exception e){
-            return;
+        else{
+            waiting = true;
         }
-        finally{
-            System.out.println(customerID);
-            /*
-            boolean checked = false;
-            while(parlour.getCurrTime() != (seatedTime + eatingTime) && !parlour.allChecked()){
-                while(!checked){
-                    try{
-                        parlour.getTimeSemaphore().acquire();
+        parlour.releaseMutex();
+
+    
+        while(!finished){
+            parlour.acquireMutex();
+            if(waiting){
+                if(parlour.getCurrTime() >= arriveTime){
+                    if(parlour.sitDown()){
+                        waiting = false;
+                        seatedTime = parlour.getCurrTime();
+                        parlour.addNewEvent(seatedTime + eatingTime);
+                        parlour.incTime();
                     }
-                    catch (Exception e){
-                        return;
-                    }
-                    finally{
-                        checked = true;
-                        parlour.incCheckCount();
-                        parlour.getTimeSemaphore().release();
+                    else{
+                       parlour.insertIntoList();
                     }
                 }
             }
-
-            System.out.println(customerID +  " " + parlour.getCurrTime());
-            while(parlour.allChecked()){
-                try{
-                    parlour.getTimeSemaphore().acquire();
-                }
-                catch (Exception e){
-                    return;
-                }
-                finally{
-                    parlour.nextEvent();
-                    parlour.resetCheckCount();
-                    parlour.getTimeSemaphore().release();
+            else{
+                if(parlour.getCurrTime() == (eatingTime + seatedTime)){
+                    finished = true;
+                    //System.out.println(customerID + " " + parlour.getCurrTime());
+                    leaveTime = parlour.getCurrTime();
+                    parlour.addToFinishedList(this);
+                    parlour.leave();
+                    parlour.incTime();
                 }
             }
-
-            parlour.getSemaphore().release();*/
+            parlour.releaseMutex();
         }
     }
 }
