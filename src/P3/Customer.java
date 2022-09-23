@@ -1,5 +1,5 @@
 
-public class Customer implements Runnable{
+public class Customer implements Runnable, Comparable<Customer>{
     private Parlour parlour;
     private String customerID;
     private boolean finished;
@@ -63,5 +63,17 @@ public class Customer implements Runnable{
                 }
             }
         }
+    }
+
+    @Override
+    public int compareTo(Customer customer) {
+        int n1 = Integer.parseInt(customerID.substring(1));
+        int n2 = Integer.parseInt(customer.getCustomerID().substring(1));
+        
+        if(n1 > n2){
+            return 1;
+        }
+        
+        return -1;
     }
 }
