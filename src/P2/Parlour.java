@@ -1,9 +1,10 @@
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 import java.util.concurrent.*;
 
 public class Parlour {
     private static final int MAXSEATS = 5;
-    private ArrayList<Customer> finishedList;
+    private PriorityQueue<Customer> finishedList;
     private Semaphore mutex;
     private int customersEating;
     private boolean capacityStatus;
@@ -11,7 +12,7 @@ public class Parlour {
 
 
     public Parlour(){
-        finishedList = new ArrayList<>();
+        finishedList = new PriorityQueue<>();
         mutex = new Semaphore(1, true);
         customersEating = 0;
         currTime = 0;
@@ -88,16 +89,9 @@ public class Parlour {
 
     public String generateReport(){
         String output = "Customer   Arrives     Seats    Leaves\n";
-        int pos = 1;
         while(!finishedList.isEmpty()){
-            for(int i = 0; i < finishedList.size(); i++){
-                Customer temp = finishedList.get(i);
-                if(Character.getNumericValue(temp.getCustomerID().charAt(temp.getCustomerID().length() - 1)) == pos){
-                    output += String.format("%-11s %-10d %-8d %-1d", temp.getCustomerID(), temp.getArriveTime(), temp.getSeatedTime(), temp.getFinishedTime()) + "\n";
-                    finishedList.remove(i);
-                }
-            }
-            pos++;
+            Customer temp = finishedList.remove();
+            output += String.format("%-11s %-10d %-8d %-1d", temp.getCustomerID(), temp.getArriveTime(), temp.getSeatedTime(), temp.getFinishedTime()) + "\n";
         }
         return output;
     }
