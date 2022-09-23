@@ -7,8 +7,8 @@ public class P2 {
     public static void main(String[] args) throws Exception{
         try{
             filename = args[0];
-            P2 farmerBridgeProblem = new P2();
-            farmerBridgeProblem.run();
+            P2 iceCreamParlour= new P2();
+            iceCreamParlour.run();
         }
         catch(ArrayIndexOutOfBoundsException e){
             System.out.println("Missing Filename Argument");
